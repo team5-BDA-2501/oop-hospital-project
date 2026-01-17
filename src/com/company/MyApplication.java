@@ -21,11 +21,11 @@ public class MyApplication {
         System.out.println("1. Get all users");
         System.out.println("2. Get user by id");
         System.out.println("3. Create user");
+        System.out.println("4. Create doctor");
         System.out.println("0. Exit");
         System.out.println();
-        System.out.print("Enter option (1-3): ");
+        System.out.print("Enter option (1-4): ");
     }
-    //ytfyftytf
 
     public void start() {
         while (true) {
@@ -37,6 +37,7 @@ public class MyApplication {
                     case 1: getAllUsersMenu(); break;
                     case 2: getUserByIdMenu(); break;
                     case 3: createUserMenu(); break;
+                    case 4: createDoctorMenu(); break;
                     default: return;
                 }
             } catch (InputMismatchException e) {
@@ -73,6 +74,20 @@ public class MyApplication {
         String gender = scanner.next();
 
         String response = controller.createUser(name, surname, gender);
+        System.out.println(response);
+    }
+
+    public void createDoctorMenu() {
+        System.out.println("Please enter name");
+        String name = scanner.next();
+        System.out.println("Please enter surname");
+        String surname = scanner.next();
+        System.out.println("Please enter gender (male/female)");
+        String gender = scanner.next();
+        System.out.println("Please enter position");
+        String position = scanner.next();
+
+        String response = controller.createDoctor(name, surname, gender, position);
         System.out.println(response);
     }
 }
