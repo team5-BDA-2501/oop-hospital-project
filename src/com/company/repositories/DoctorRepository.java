@@ -2,14 +2,13 @@ package com.company.repositories;
 
 import com.company.data.interfaces.IDB;
 import com.company.models.Doctor;
-import com.company.controllers.interfaces.IDoctorController;
-import com.company.models.User;
+import com.company.repositories.interfaces.IDoctorRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DoctorRepository implements IDoctorController {
+public class DoctorRepository implements IDoctorRepository {
     private final IDB db;
 
     public DoctorRepository(IDB db) {
@@ -18,79 +17,71 @@ public class DoctorRepository implements IDoctorController {
 
     @Override
     public boolean createDoctor(Doctor doctor) {
-        Connection con = null;
+        String sql = "INSERT INTO doctors(name, surname, gender, position) VALUES (?,?,?,?)";
 
-        try {
-            con = db.getConnection();
-            String sql = "INSERT INTO doctors(name,surname,gender,position) VALUES (?,?,?,?)";
-            PreparedStatement st = con.prepareStatement(sql);
+        try (Connection con = db.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
 
             st.setString(1, doctor.getName());
             st.setString(2, doctor.getSurname());
             st.setBoolean(3, doctor.getGender());
+            st.setString(4, doctor.getPosition());
 
-            st.execute();
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("sql error: " + e.getMessage());
+            return false;
+        }
+    }
 
-            return true;
+    @Override
+    public Doctor getDoctor(int id) {
+        String sql = "SELECT id, name, surname, gender, position FROM doctors WHERE id=?";
+
+        try (Connection con = db.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setInt(1, id);
+
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Doctor(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("surname"),
+                            rs.getBoolean("gender"),
+                            rs.getString("position")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("sql error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public List<Doctor> getAllDoctors() {
+        String sql = "SELECT id, name, surname, gender, position FROM doctors ORDER BY id";
+        List<Doctor> doctors = new ArrayList<>();
+
+        try (Connection con = db.getConnection();
+             PreparedStatement st = con.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
+
+            while (rs.next()) {
+                doctors.add(new Doctor(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("surname"),
+                        rs.getBoolean("gender"),
+                        rs.getString("position")
+                ));
+            }
         } catch (SQLException e) {
             System.out.println("sql error: " + e.getMessage());
         }
 
-        return false;
-
-        @Override
-        public Doctor getDoctor(int id) {
-            Connection con = null;
-
-            try {
-                con = db.getConnection();
-                String sql = "SELECT id,name,surname,gender,position FROM doctors WHERE id=?";
-                PreparedStatement st = con.prepareStatement(sql);
-
-                st.setInt(1, id);
-
-                ResultSet rs = st.executeQuery();
-                if (rs.next()) {
-                    return new Doctor(rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("surname"),
-                            rs.getBoolean("gender")),
-                            rs.getString("position");
-                }
-            } catch (SQLException e) {
-                System.out.println("sql error: " + e.getMessage());
-            }
-
-            return null;
-        }
-
-        @Override
-        public List<Doctor> getAllDoctors() {
-            Connection con = null;
-
-            try {
-                con = db.getConnection();
-                String sql = "SELECT id,name,surname,gender,position FROM doctors";
-                Statement st = con.createStatement();
-
-                ResultSet rs = st.executeQuery(sql);
-                List<Doctor> doctors = new ArrayList<>();
-                while (rs.next()) {
-                    Doctor doctor = new Doctor(rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("surname"),
-                            rs.getBoolean("gender")),
-                            rs.getString("position");
-
-                    doctors.add(doctor);
-                }
-
-                return doctors;
-            } catch (SQLException e) {
-                System.out.println("sql error: " + e.getMessage());
-            }
-
-            return null;
-        }
+        return doctors;
     }
 }
