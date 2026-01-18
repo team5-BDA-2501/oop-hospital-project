@@ -29,13 +29,13 @@ public class DoctorController implements IDoctorController {
     }
 
     public String getAllDoctors() {
-        List<Doctor> users = repo.getAllDoctors();
+        List<Doctor> doctors = repo.getAllDoctors();
+        if (doctors == null || doctors.isEmpty()) return "No doctors found!";
 
         StringBuilder response = new StringBuilder();
         for (Doctor doctor : doctors) {
-            response.append(doctor.toString()).append("\n");
+            response.append(doctor).append("\n");
         }
-
         return response.toString();
     }
 }
