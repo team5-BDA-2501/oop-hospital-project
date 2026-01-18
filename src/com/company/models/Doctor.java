@@ -15,6 +15,7 @@ public class Doctor {
         setName(name);
         setSurname(surname);
         setGender(gender);
+        setPosition(position);
     }
 
     public Doctor(int id, String name, String surname, boolean gender, String position) {

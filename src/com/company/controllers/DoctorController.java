@@ -19,17 +19,17 @@ public class DoctorController implements IDoctorController {
 
         boolean created = repo.createDoctor(doctor);
 
-        return (created ? "User was created!" : "User creation was failed!");
+        return (created ? "Doctor was created!" : "Doctor creation failed!");
     }
 
     public String getDoctor(int id) {
         Doctor doctor = repo.getDoctor(id);
 
-        return (doctor == null ? "User was not found!" : doctor.toString());
+        return (doctor == null ? "Doctor was not found!" : doctor.toString());
     }
 
     public String getAllDoctors() {
-        List<Doctor> users = repo.getAllDoctors();
+        List<Doctor> doctors = repo.getAllDoctors();
 
         StringBuilder response = new StringBuilder();
         for (Doctor doctor : doctors) {
@@ -37,5 +37,10 @@ public class DoctorController implements IDoctorController {
         }
 
         return response.toString();
+    }
+
+    @Override
+    public boolean createDoctor(Doctor doctor) {
+        return false;
     }
 }

@@ -2,15 +2,14 @@ package com.company.repositories;
 
 import com.company.data.interfaces.IDB;
 import com.company.models.Doctor;
-import com.company.controllers.interfaces.IDoctorController;
-import com.company.models.User;
+import com.company.repositories.interfaces.IDoctorRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DoctorRepository implements IDoctorController {
-    private final IDB db;
+public class DoctorRepository implements IDoctorRepository {
+    private final IDB db;  // Dependency Injection
 
     public DoctorRepository(IDB db) {
         this.db = db;
@@ -28,6 +27,7 @@ public class DoctorRepository implements IDoctorController {
             st.setString(1, doctor.getName());
             st.setString(2, doctor.getSurname());
             st.setBoolean(3, doctor.getGender());
+            st.setString(4, doctor.getPosition());
 
             st.execute();
 
@@ -37,60 +37,60 @@ public class DoctorRepository implements IDoctorController {
         }
 
         return false;
+    }
 
-        @Override
-        public Doctor getDoctor(int id) {
-            Connection con = null;
+    @Override
+    public Doctor getDoctor(int id) {
+        Connection con = null;
 
-            try {
-                con = db.getConnection();
-                String sql = "SELECT id,name,surname,gender,position FROM doctors WHERE id=?";
-                PreparedStatement st = con.prepareStatement(sql);
+        try {
+            con = db.getConnection();
+            String sql = "SELECT id,name,surname,gender,position FROM doctors WHERE id=?";
+            PreparedStatement st = con.prepareStatement(sql);
 
-                st.setInt(1, id);
+            st.setInt(1, id);
 
-                ResultSet rs = st.executeQuery();
-                if (rs.next()) {
-                    return new Doctor(rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("surname"),
-                            rs.getBoolean("gender")),
-                            rs.getString("position");
-                }
-            } catch (SQLException e) {
-                System.out.println("sql error: " + e.getMessage());
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return new Doctor(rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("surname"),
+                        rs.getBoolean("gender"),
+                        rs.getString("position"));
             }
-
-            return null;
+        } catch (SQLException e) {
+            System.out.println("sql error: " + e.getMessage());
         }
 
-        @Override
-        public List<Doctor> getAllDoctors() {
-            Connection con = null;
+        return null;
+    }
 
-            try {
-                con = db.getConnection();
-                String sql = "SELECT id,name,surname,gender,position FROM doctors";
-                Statement st = con.createStatement();
+    @Override
+    public List<Doctor> getAllDoctors() {
+        Connection con = null;
 
-                ResultSet rs = st.executeQuery(sql);
-                List<Doctor> doctors = new ArrayList<>();
-                while (rs.next()) {
-                    Doctor doctor = new Doctor(rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("surname"),
-                            rs.getBoolean("gender")),
-                            rs.getString("position");
+        try {
+            con = db.getConnection();
+            String sql = "SELECT id,name,surname,gender,position FROM doctors";
+            Statement st = con.createStatement();
 
-                    doctors.add(doctor);
-                }
+            ResultSet rs = st.executeQuery(sql);
+            List<Doctor> doctors = new ArrayList<>();
+            while (rs.next()) {
+                Doctor doctor = new Doctor(rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("surname"),
+                        rs.getBoolean("gender"),
+                        rs.getString("position"));
 
-                return doctors;
-            } catch (SQLException e) {
-                System.out.println("sql error: " + e.getMessage());
+                doctors.add(doctor);
             }
 
-            return null;
+            return doctors;
+        } catch (SQLException e) {
+            System.out.println("sql error: " + e.getMessage());
         }
+
+        return null;
     }
 }
