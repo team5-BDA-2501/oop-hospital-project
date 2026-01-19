@@ -1,7 +1,7 @@
 package com.company.controllers;
 
-import com.company.models.Doctor;
 import com.company.controllers.interfaces.IDoctorController;
+import com.company.models.Doctor;
 import com.company.repositories.interfaces.IDoctorRepository;
 
 import java.util.List;
@@ -13,29 +13,26 @@ public class DoctorController implements IDoctorController {
         this.repo = repo;
     }
 
-    public String createDoctor(String name, String surname, String gender, String position) {
-        boolean male = gender.equalsIgnoreCase("male");
-        Doctor doctor = new Doctor(name, surname, male, position);
-
+    @Override
+    public String createDoctor(String firstName, String lastName, String specialization, String email, String phone, boolean isActive) {
+        Doctor doctor = new Doctor(firstName, lastName, specialization, email, phone, isActive);
         boolean created = repo.createDoctor(doctor);
-
-        return (created ? "User was created!" : "User creation was failed!");
+        return created ? "Doctor was created!" : "Doctor creation failed!";
     }
 
+    @Override
     public String getDoctor(int id) {
         Doctor doctor = repo.getDoctor(id);
-
-        return (doctor == null ? "User was not found!" : doctor.toString());
+        return (doctor == null) ? "Doctor was not found!" : doctor.toString();
     }
 
+    @Override
     public String getAllDoctors() {
         List<Doctor> doctors = repo.getAllDoctors();
         if (doctors == null || doctors.isEmpty()) return "No doctors found!";
 
-        StringBuilder response = new StringBuilder();
-        for (Doctor doctor : doctors) {
-            response.append(doctor).append("\n");
-        }
-        return response.toString();
+        StringBuilder sb = new StringBuilder();
+        for (Doctor d : doctors) sb.append(d).append("\n");
+        return sb.toString();
     }
 }
