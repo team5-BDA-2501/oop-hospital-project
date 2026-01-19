@@ -17,15 +17,18 @@ public class DoctorRepository implements IDoctorRepository {
 
     @Override
     public boolean createDoctor(Doctor doctor) {
-        String sql = "INSERT INTO doctors(name, surname, gender, position) VALUES (?,?,?,?)";
+        String sql = "INSERT INTO doctors(first_name, last_name, specialization, email, phone, is_active) " +
+                "VALUES (?,?,?,?,?,?)";
 
         try (Connection con = db.getConnection();
              PreparedStatement st = con.prepareStatement(sql)) {
 
-            st.setString(1, doctor.getName());
-            st.setString(2, doctor.getSurname());
-            st.setBoolean(3, doctor.getGender());
-            st.setString(4, doctor.getPosition());
+            st.setString(1, doctor.getFirstName());
+            st.setString(2, doctor.getLastName());
+            st.setString(3, doctor.getSpecialization());
+            st.setString(4, doctor.getEmail());
+            st.setString(5, doctor.getPhone());
+            st.setBoolean(6, doctor.isActive());
 
             return st.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -36,7 +39,8 @@ public class DoctorRepository implements IDoctorRepository {
 
     @Override
     public Doctor getDoctor(int id) {
-        String sql = "SELECT id, name, surname, gender, position FROM doctors WHERE id=?";
+        String sql = "SELECT id, first_name, last_name, specialization, email, phone, is_active " +
+                "FROM doctors WHERE id=?";
 
         try (Connection con = db.getConnection();
              PreparedStatement st = con.prepareStatement(sql)) {
@@ -47,10 +51,12 @@ public class DoctorRepository implements IDoctorRepository {
                 if (rs.next()) {
                     return new Doctor(
                             rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("surname"),
-                            rs.getBoolean("gender"),
-                            rs.getString("position")
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getString("specialization"),
+                            rs.getString("email"),
+                            rs.getString("phone"),
+                            rs.getBoolean("is_active")
                     );
                 }
             }
@@ -62,26 +68,30 @@ public class DoctorRepository implements IDoctorRepository {
 
     @Override
     public List<Doctor> getAllDoctors() {
-        String sql = "SELECT id, name, surname, gender, position FROM doctors ORDER BY id";
-        List<Doctor> doctors = new ArrayList<>();
+        String sql = "SELECT id, first_name, last_name, specialization, email, phone, is_active " +
+                "FROM doctors ORDER BY id";
+
+        List<Doctor> list = new ArrayList<>();
 
         try (Connection con = db.getConnection();
              PreparedStatement st = con.prepareStatement(sql);
              ResultSet rs = st.executeQuery()) {
 
             while (rs.next()) {
-                doctors.add(new Doctor(
+                list.add(new Doctor(
                         rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("surname"),
-                        rs.getBoolean("gender"),
-                        rs.getString("position")
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("specialization"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getBoolean("is_active")
                 ));
             }
         } catch (SQLException e) {
             System.out.println("sql error: " + e.getMessage());
+            return null;
         }
-
-        return doctors;
+        return list;
     }
 }

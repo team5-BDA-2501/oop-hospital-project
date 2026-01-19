@@ -1,8 +1,8 @@
 package com.company;
 
-import com.company.controllers.interfaces.IDoctorController;
-import com.company.controllers.interfaces.IUserController;
+import com.company.controllers.interfaces.*;
 
+import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -11,94 +11,206 @@ public class MyApplication {
 
     private final IUserController userController;
     private final IDoctorController doctorController;
+    private final IDoctorAvailabilityController availabilityController;
+    private final IAppointmentController appointmentController;
 
-    public MyApplication(IUserController userController, IDoctorController doctorController) {
+    public MyApplication(
+            IUserController userController,
+            IDoctorController doctorController,
+            IDoctorAvailabilityController availabilityController,
+            IAppointmentController appointmentController
+    ) {
         this.userController = userController;
         this.doctorController = doctorController;
-    }
-
-    private void mainMenu() {
-        System.out.println();
-        System.out.println("Welcome to My Application");
-        System.out.println("Select option:");
-        System.out.println("1. Get all users");
-        System.out.println("2. Get user by id");
-        System.out.println("3. Create user");
-        System.out.println("4. Get all doctors");
-        System.out.println("5. Get doctor by id");
-        System.out.println("6. Create doctor");
-        System.out.println("0. Exit");
-        System.out.println();
-        System.out.print("Enter option (1-6): ");
+        this.availabilityController = availabilityController;
+        this.appointmentController = appointmentController;
     }
 
     public void start() {
         while (true) {
-            mainMenu();
-            try {
-                int option = scanner.nextInt();
+            System.out.println("\n========== HOSPITAL SYSTEM ==========");
+            System.out.println("1) Users");
+            System.out.println("2) Doctors");
+            System.out.println("3) Doctor Availability");
+            System.out.println("4) Appointments");
+            System.out.println("0) Exit");
+            System.out.print("Choose: ");
 
-                switch (option) {
-                    case 1: getAllUsersMenu(); break;
-                    case 2: getUserByIdMenu(); break;
-                    case 3: createUserMenu(); break;
-                    case 4: getAllDoctorsMenu(); break;
-                    case 5: getDoctorByIdMenu(); break;
-                    case 6: createDoctorMenu(); break;
-                    default: return;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Input must be integer: " + e);
-                scanner.nextLine();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+            int choice = readInt();
+            switch (choice) {
+                case 1 -> usersMenu();
+                case 2 -> doctorsMenu();
+                case 3 -> availabilityMenu();
+                case 4 -> appointmentsMenu();
+                default -> { return; }
             }
-
-            System.out.println("*************************");
         }
     }
 
-    private void getAllUsersMenu() {
-        System.out.println(userController.getAllUsers());
+    // -------- USERS --------
+    private void usersMenu() {
+        while (true) {
+            System.out.println("\n--- USERS ---");
+            System.out.println("1) Get all users");
+            System.out.println("2) Get user by id");
+            System.out.println("3) Create user");
+            System.out.println("0) Back");
+            System.out.print("Choose: ");
+
+            int choice = readInt();
+            switch (choice) {
+                case 1 -> System.out.println(userController.getAllUsers());
+                case 2 -> {
+                    System.out.print("User id: ");
+                    int id = readInt();
+                    System.out.println(userController.getUser(id));
+                }
+                case 3 -> {
+                    System.out.print("Name: ");
+                    String name = readLine();
+                    System.out.print("Surname: ");
+                    String surname = readLine();
+                    System.out.print("Gender (male/female): ");
+                    String gender = readLine();
+                    System.out.println(userController.createUser(name, surname, gender));
+                }
+                default -> { return; }
+            }
+        }
     }
 
-    private void getUserByIdMenu() {
-        System.out.println("Please enter user id:");
-        int id = scanner.nextInt();
-        System.out.println(userController.getUser(id));
+    // -------- DOCTORS --------
+    private void doctorsMenu() {
+        while (true) {
+            System.out.println("\n--- DOCTORS ---");
+            System.out.println("1) Get all doctors");
+            System.out.println("2) Get doctor by id");
+            System.out.println("3) Create doctor");
+            System.out.println("0) Back");
+            System.out.print("Choose: ");
+
+            int choice = readInt();
+            switch (choice) {
+                case 1 -> System.out.println(doctorController.getAllDoctors());
+                case 2 -> {
+                    System.out.print("Doctor id: ");
+                    int id = readInt();
+                    System.out.println(doctorController.getDoctor(id));
+                }
+                case 3 -> {
+                    System.out.print("First name: ");
+                    String fn = readLine();
+                    System.out.print("Last name: ");
+                    String ln = readLine();
+                    System.out.print("Specialization: ");
+                    String spec = readLine();
+                    System.out.print("Email: ");
+                    String email = readLine();
+                    System.out.print("Phone: ");
+                    String phone = readLine();
+                    System.out.print("Is active (true/false): ");
+                    boolean active = readBoolean();
+                    System.out.println(doctorController.createDoctor(fn, ln, spec, email, phone, active));
+                }
+                default -> { return; }
+            }
+        }
     }
 
-    private void createUserMenu() {
-        System.out.println("Please enter name:");
-        String name = scanner.next();
-        System.out.println("Please enter surname:");
-        String surname = scanner.next();
-        System.out.println("Please enter gender (male/female):");
-        String gender = scanner.next();
+    // -------- AVAILABILITY --------
+    private void availabilityMenu() {
+        while (true) {
+            System.out.println("\n--- DOCTOR AVAILABILITY ---");
+            System.out.println("1) Add availability window");
+            System.out.println("2) View doctor availability");
+            System.out.println("0) Back");
+            System.out.print("Choose: ");
 
-        System.out.println(userController.createUser(name, surname, gender));
+            int choice = readInt();
+            switch (choice) {
+                case 1 -> {
+                    System.out.print("Doctor id: ");
+                    int doctorId = readInt();
+                    System.out.print("Day (Monday/Tuesday/...): ");
+                    String day = readLine();
+                    System.out.print("Start time (HH:mm or H:mm): ");
+                    String start = readLine();
+                    System.out.print("End time (HH:mm or H:mm): ");
+                    String end = readLine();
+                    System.out.println(availabilityController.addAvailability(doctorId, day, start, end));
+                }
+                case 2 -> {
+                    System.out.print("Doctor id: ");
+                    int doctorId = readInt();
+                    System.out.println(availabilityController.viewAvailability(doctorId));
+                }
+                default -> { return; }
+            }
+        }
     }
 
-    private void getAllDoctorsMenu() {
-        System.out.println(doctorController.getAllDoctors());
+    // -------- APPOINTMENTS --------
+    private void appointmentsMenu() {
+        while (true) {
+            System.out.println("\n--- APPOINTMENTS ---");
+            System.out.println("1) Create appointment");
+            System.out.println("2) View appointments by user");
+            System.out.println("3) View appointments by doctor");
+            System.out.println("0) Back");
+            System.out.print("Choose: ");
+
+            int choice = readInt();
+            switch (choice) {
+                case 1 -> {
+                    System.out.print("User id: ");
+                    int userId = readInt();
+                    System.out.print("Doctor id: ");
+                    int doctorId = readInt();
+                    System.out.print("Availability id: ");
+                    int availabilityId = readInt();
+                    System.out.print("Appointment datetime (yyyy-MM-dd HH:mm): ");
+                    String dt = readLine();
+                    System.out.print("Duration minutes: ");
+                    int dur = readInt();
+                    System.out.println(appointmentController.createAppointment(userId, doctorId, availabilityId, dt, dur));
+                }
+                case 2 -> {
+                    System.out.print("User id: ");
+                    int userId = readInt();
+                    System.out.println(appointmentController.getAppointmentsByUser(userId));
+                }
+                case 3 -> {
+                    System.out.print("Doctor id: ");
+                    int doctorId = readInt();
+                    System.out.println(appointmentController.getAppointmentsByDoctor(doctorId));
+                }
+                default -> { return; }
+            }
+        }
     }
 
-    private void getDoctorByIdMenu() {
-        System.out.println("Please enter doctor id:");
-        int id = scanner.nextInt();
-        System.out.println(doctorController.getDoctor(id));
+    // -------- helpers --------
+    private int readInt() {
+        while (true) {
+            try {
+                int val = Integer.parseInt(readLine().trim());
+                return val;
+            } catch (Exception e) {
+                System.out.print("Enter a number: ");
+            }
+        }
     }
 
-    private void createDoctorMenu() {
-        System.out.println("Please enter name:");
-        String name = scanner.next();
-        System.out.println("Please enter surname:");
-        String surname = scanner.next();
-        System.out.println("Please enter gender (male/female):");
-        String gender = scanner.next();
-        System.out.println("Please enter position:");
-        String position = scanner.next();
+    private boolean readBoolean() {
+        while (true) {
+            String s = readLine().trim().toLowerCase();
+            if (s.equals("true") || s.equals("t") || s.equals("yes") || s.equals("y")) return true;
+            if (s.equals("false") || s.equals("f") || s.equals("no") || s.equals("n")) return false;
+            System.out.print("Enter true/false: ");
+        }
+    }
 
-        System.out.println(doctorController.createDoctor(name, surname, gender, position));
+    private String readLine() {
+        return scanner.nextLine();
     }
 }
