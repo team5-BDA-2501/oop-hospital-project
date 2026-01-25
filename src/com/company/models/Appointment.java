@@ -12,7 +12,7 @@ public class Appointment {
     private int durationMinutes;
     private String status;
 
-    // Constructor for creating appointments
+
     public Appointment(int id, int userId, int doctorId, int availabilityId, int timeId,
                        LocalDateTime appointmentDatetime, int durationMinutes, String status) {
         this.id = id;
@@ -25,13 +25,13 @@ public class Appointment {
         this.status = status;
     }
 
-    // Constructor for creating a new Appointment without the ID (for new appointments)
+
     public Appointment(int userId, int doctorId, int availabilityId, int timeId,
                        LocalDateTime appointmentDatetime, int durationMinutes, String status) {
         this(0, userId, doctorId, availabilityId, timeId, appointmentDatetime, durationMinutes, status);
     }
 
-    // Getters for the fields
+
     public int getId() {
         return id;
     }
@@ -64,7 +64,7 @@ public class Appointment {
         return status;
     }
 
-    // Optional: Override toString() for easy printing
+
     @Override
     public String toString() {
         return "Appointment{" +

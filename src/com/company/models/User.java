@@ -25,7 +25,7 @@ public class User {
         this.gender = gender;
     }
 
-    // Getters and Setters
+
     public int getId() { return id; }
     public String getName() { return name; }
     public String getSurname() { return surname; }
