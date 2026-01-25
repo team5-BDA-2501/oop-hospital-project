@@ -9,7 +9,7 @@ public class DoctorAvailability {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    // Constructor
+
     public DoctorAvailability(int doctorId, String dayOfWeek, LocalTime startTime, LocalTime endTime) {
         this.doctorId = doctorId;
         this.dayOfWeek = dayOfWeek;
@@ -17,7 +17,7 @@ public class DoctorAvailability {
         this.endTime = endTime;
     }
 
-    // Getters and setters
+
     public int getId() {
         return id;
     }

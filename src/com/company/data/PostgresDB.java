@@ -7,9 +7,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class PostgresDB implements IDB {
-    private final String url = "jdbc:postgresql://localhost:5432/somedb";  // Modify with your DB connection details
-    private final String user = "postgres";  // Modify with your username
-    private final String password = "Dilnaz2007";  // Modify with your password
+    private final String url = "jdbc:postgresql://localhost:5432/somedb";
+    private final String user = "postgres";
+    private final String password = "Dilnaz2007";
 
     @Override
     public Connection getConnection() {
@@ -23,6 +23,6 @@ public class PostgresDB implements IDB {
 
     @Override
     public void close() {
-        // Optional: Implement closing the connection if necessary
+
     }
 }
