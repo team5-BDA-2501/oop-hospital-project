@@ -135,7 +135,7 @@ public class AppointmentRepository implements IAppointmentRepository {
             stmt.setTimestamp(3, Timestamp.valueOf(end));
 
             ResultSet rs = stmt.executeQuery();
-            return rs.next(); // If we find any records, there's an overlap
+            return rs.next();
 
         } catch (SQLException e) {
             System.out.println("Error checking for overlapping appointments: " + e.getMessage());
