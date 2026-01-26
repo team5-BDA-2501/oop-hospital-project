@@ -22,11 +22,11 @@ public class Main {
 
         UserController userController = new UserController(userRepository);
         AppointmentController appointmentController = new AppointmentController(appointmentRepository);
-        DoctorController doctorController = new DoctorController(doctorRepository);  // Initialize doctorController
+        DoctorController doctorController = new DoctorController(doctorRepository);
         DoctorAvailabilityController doctorAvailabilityController = new DoctorAvailabilityController(doctorAvailabilityRepository);
 
 
-        MyApplication app = new MyApplication(userController, appointmentController, doctorController, doctorAvailabilityController);  // Pass all 4 controllers
+        MyApplication app = new MyApplication(userController, appointmentController, doctorController, doctorAvailabilityController);
         app.start();
     }
 }

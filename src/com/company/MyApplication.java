@@ -150,7 +150,7 @@ public class MyApplication {
 
             doctorAvailabilityController.viewAvailableSlots(doctorId);
 
-            System.out.print("Enter your preferred slot time: (Ex: 2023-11-05 13:00");
+            System.out.print("Enter your preferred slot time: (Ex: 2023-11-05 13:00) ");
             String slotTime = scanner.nextLine();
 
 
