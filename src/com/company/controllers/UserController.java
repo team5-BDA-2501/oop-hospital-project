@@ -10,11 +10,13 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+
     public User loginUser(String username, String password) {
         return userRepository.getUserByUsernameAndPassword(username, password);
     }
 
     public boolean registerUser(String name, String surname, String username, String password, boolean gender) {
-        return userRepository.createUser(new User(name, surname, username, password, gender));
+        User user = new User(name, surname, username, password, gender);
+        return userRepository.createUser(user);
     }
 }

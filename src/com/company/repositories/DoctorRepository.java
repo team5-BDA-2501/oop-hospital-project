@@ -2,13 +2,11 @@ package com.company.repositories;
 
 import com.company.models.Doctor;
 import com.company.repositories.interfaces.IDoctorRepository;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DoctorRepository implements IDoctorRepository {
-
     private final Connection connection;
 
     public DoctorRepository(Connection connection) {
@@ -21,7 +19,6 @@ public class DoctorRepository implements IDoctorRepository {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, doctorId);
             ResultSet rs = stmt.executeQuery();
-
             if (rs.next()) {
                 return new Doctor(
                         rs.getInt("id"),
@@ -32,11 +29,9 @@ public class DoctorRepository implements IDoctorRepository {
                         rs.getString("phone"),
                         rs.getBoolean("is_active")
                 );
-            } else {
-                System.out.println("Doctor not found with ID: " + doctorId);
             }
         } catch (SQLException e) {
-            System.out.println("Error fetching doctor by ID: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -45,13 +40,11 @@ public class DoctorRepository implements IDoctorRepository {
     public List<Doctor> getDoctorsBySpecialization(String specialization) {
         String sql = "SELECT * FROM doctors WHERE specialization = ?";
         List<Doctor> doctors = new ArrayList<>();
-
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, specialization);
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
-                Doctor doctor = new Doctor(
+                doctors.add(new Doctor(
                         rs.getInt("id"),
                         rs.getString("first_name"),
                         rs.getString("last_name"),
@@ -59,12 +52,59 @@ public class DoctorRepository implements IDoctorRepository {
                         rs.getString("email"),
                         rs.getString("phone"),
                         rs.getBoolean("is_active")
-                );
-                doctors.add(doctor);
+                ));
             }
         } catch (SQLException e) {
-            System.out.println("Error fetching doctors by specialization: " + e.getMessage());
+            e.printStackTrace();
         }
         return doctors;
+    }
+
+    // Add a doctor to the database
+    @Override
+    public boolean addDoctor(Doctor doctor) {
+        String sql = "INSERT INTO doctors (first_name, last_name, specialization, email, phone, is_active, username) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, doctor.getFirstName());
+            stmt.setString(2, doctor.getLastName());
+            stmt.setString(3, doctor.getSpecialization());
+            stmt.setString(4, doctor.getEmail());
+            stmt.setString(5, doctor.getPhone());
+            stmt.setBoolean(6, doctor.isActive());
+            stmt.setString(7, doctor.getUsername());
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Delete a doctor from the database
+    @Override
+    public boolean deleteDoctor(int doctorId) {
+        String sql = "DELETE FROM doctors WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, doctorId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Add availability for a doctor
+    @Override
+    public boolean addAvailability(int doctorId, String dayOfWeek, String startTime, String endTime) {
+        String sql = "INSERT INTO doctor_availability (doctor_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, doctorId);
+            stmt.setString(2, dayOfWeek);
+            stmt.setString(3, startTime);
+            stmt.setString(4, endTime);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

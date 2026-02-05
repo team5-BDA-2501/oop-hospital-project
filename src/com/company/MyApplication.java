@@ -1,59 +1,43 @@
 package com.company;
 
+import com.company.controllers.*;
+import com.company.models.Role;
+import com.company.models.User;
+import com.company.utils.InputValidator;
+import com.company.models.Doctor;
 import java.util.List;
 import java.util.Scanner;
-import com.company.controllers.AppointmentController;
-import com.company.controllers.UserController;
-import com.company.controllers.DoctorController;
-import com.company.controllers.DoctorAvailabilityController;
-import com.company.models.User;
-import com.company.repositories.AppointmentRepository;
-import com.company.repositories.UserRepository;
-import com.company.repositories.DoctorRepository;
-import com.company.repositories.DoctorAvailabilityRepository;
-import com.company.data.PostgresDB;
-import com.company.models.Doctor;
 
 public class MyApplication {
-
     private final Scanner scanner = new Scanner(System.in);
+
     private final UserController userController;
     private final AppointmentController appointmentController;
     private final DoctorController doctorController;
-    private final DoctorAvailabilityController doctorAvailabilityController;
+    private final AdminController adminController;
 
     private User loggedInUser = null;
-
-
-    public MyApplication(UserController userController, AppointmentController appointmentController, DoctorController doctorController, DoctorAvailabilityController doctorAvailabilityController) {
+    public MyApplication(UserController userController, AppointmentController appointmentController, DoctorController doctorController, AdminController adminController) {
         this.userController = userController;
         this.appointmentController = appointmentController;
         this.doctorController = doctorController;
-        this.doctorAvailabilityController = doctorAvailabilityController;
+        this.adminController = adminController;
     }
 
     public void start() {
         while (true) {
             System.out.println("========== HOSPITAL SYSTEM ==========");
             System.out.println("1) Login");
-            System.out.println("2) Register");
+            System.out.println("2) Register (USER)");
             System.out.println("0) Exit");
             System.out.print("Choose: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
 
+            int choice = readInt();
             switch (choice) {
-                case 1:
-                    login();
-                    break;
-                case 2:
-                    register();
-                    break;
-                case 0:
-                    System.out.println("Goodbye!");
-                    return;
-                default:
-                    System.out.println("Invalid choice. Try again.");
+                case 1 -> login();
+                case 2 -> registerUser();
+                case 0 -> { System.out.println("Goodbye!"); return; }
+                default -> System.out.println("Invalid choice.");
             }
         }
     }
@@ -67,111 +51,241 @@ public class MyApplication {
 
         loggedInUser = userController.loginUser(username, password);
 
-        if (loggedInUser != null) {
-            System.out.println("Login successful! Welcome " + loggedInUser.getName());
-            showUserMenu();
-        } else {
+        if (loggedInUser == null) {
             System.out.println("Invalid username or password.");
+            return;
         }
+
+        System.out.println("Login successful! Welcome " + loggedInUser.getName() + " (" + loggedInUser.getRole() + ")");
+
+        if (loggedInUser.getRole() == Role.ADMIN) adminMenu();
+        else if (loggedInUser.getRole() == Role.DOCTOR) doctorMenu();
+        else userMenu();
     }
 
-    private void register() {
-        System.out.println("----- Register -----");
+    private void registerUser() {
+        System.out.println("----- Register USER -----");
         System.out.print("Name: ");
         String name = scanner.nextLine();
         System.out.print("Surname: ");
         String surname = scanner.nextLine();
+
         System.out.print("Username: ");
         String username = scanner.nextLine();
+        if (!InputValidator.validUsername(username)) {
+            System.out.println("Invalid username (min 3 chars).");
+            return;
+        }
+
         System.out.print("Password: ");
         String password = scanner.nextLine();
+        if (!InputValidator.validPassword(password)) {
+            System.out.println("Invalid password (min 3 chars).");
+            return;
+        }
+
         System.out.print("Gender (true for male, false for female): ");
-        boolean gender = scanner.nextBoolean();
+        boolean gender = readBoolean();
 
         boolean success = userController.registerUser(name, surname, username, password, gender);
-        if (success) {
-            System.out.println("Registration successful! Please log in.");
-        } else {
-            System.out.println("Registration failed. Try again.");
-        }
+        System.out.println(success ? "Registration successful! Please log in." : "Registration failed.");
     }
 
-    private void showUserMenu() {
+
+    private void userMenu() {
         while (true) {
-            System.out.println("========== User Menu ==========");
+            System.out.println("\n========== USER MENU ==========");
             System.out.println("1) Create Appointment");
             System.out.println("2) Cancel Appointment");
-            System.out.println("3) View Appointments");
-            System.out.println("4) Log Out");
+            System.out.println("3) View My Appointments");
+            System.out.println("4) Logout");
             System.out.print("Choose: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
 
-            switch (choice) {
-                case 1:
-                    createAppointment();
-                    break;
-                case 2:
-                    cancelAppointment();
-                    break;
-                case 3:
-                    viewAppointments();
-                    break;
-                case 4:
-                    loggedInUser = null;
-                    System.out.println("Logged out successfully.");
-                    return;
-                default:
-                    System.out.println("Invalid choice. Try again.");
+            int c = readInt();
+            switch (c) {
+                case 1 -> createAppointmentFlow();
+                case 2 -> cancelAppointmentFlow();
+                case 3 -> appointmentController.viewAppointmentsByUser(loggedInUser.getId());
+                case 4 -> { loggedInUser = null; System.out.println("Logged out."); return; }
+                default -> System.out.println("Invalid.");
             }
         }
     }
 
-    private void createAppointment() {
+
+    private void adminMenu() {
+        while (true) {
+            System.out.println("\n========== ADMIN MENU ==========");
+            System.out.println("1) View all users");
+            System.out.println("2) View all appointments (JOIN)");
+            System.out.println("3) Add doctor");
+            System.out.println("4) Delete doctor");
+            System.out.println("5) Logout");
+            System.out.print("Choose: ");
+
+            int c = readInt();
+            switch (c) {
+                case 1 -> adminController.viewAllUsers();
+                case 2 -> adminController.viewAllAppointmentsJoined();
+                case 3 -> addDoctorFlow();
+                case 4 -> deleteDoctorFlow();
+                case 5 -> { loggedInUser = null; System.out.println("Logged out."); return; }
+                default -> System.out.println("Invalid.");
+            }
+        }
+    }
+
+    // DOCTOR MENU
+    private void doctorMenu() {
+        while (true) {
+            System.out.println("\n========== DOCTOR MENU ==========");
+            System.out.println("1) Add availability");
+            System.out.println("2) View my appointments");
+            System.out.println("3) Cancel appointment");
+            System.out.println("4) Logout");
+            System.out.print("Choose: ");
+
+            int c = readInt();
+            switch (c) {
+                case 1 -> addAvailabilityFlow();
+                case 2 -> appointmentController.getAppointmentsByDoctor(loggedInUser.getId())
+                        .forEach(System.out::println);
+                case 3 -> cancelAppointmentFlow();
+                case 4 -> { loggedInUser = null; System.out.println("Logged out."); return; }
+                default -> System.out.println("Invalid.");
+            }
+        }
+    }
+
+    private void createAppointmentFlow() {
         System.out.println("----- Create Appointment -----");
-        System.out.print("Enter Doctor Specialization (e.g. Cardiology): ");
+        System.out.print("Enter doctor specialization (category): ");
         String specialization = scanner.nextLine();
 
-
         List<Doctor> doctors = doctorController.getDoctorsBySpecialization(specialization);
-
         if (doctors.isEmpty()) {
-            System.out.println("No doctors found with this specialization.");
+            System.out.println("No doctors found.");
+            return;
+        }
+
+        System.out.println("Doctors:");
+        doctors.forEach(d -> System.out.println("Doctor ID: " + d.getId() + " | " + d.getFirstName() + " " + d.getLastName()));
+
+        System.out.print("Enter Doctor ID: ");
+        int doctorId = readInt();
+
+        System.out.print("Enter appointment datetime: ");
+        String dt = scanner.nextLine();
+
+        int availabilityId = 1;
+        int timeId = 1;
+        int duration = 30;
+
+        String res = appointmentController.createAppointment(loggedInUser.getId(), doctorId, availabilityId, timeId, dt, duration);
+        System.out.println(res);
+    }
+
+    private void cancelAppointmentFlow() {
+        System.out.println("----- Cancel Appointment -----");
+        System.out.print("Appointment ID: ");
+        int id = readInt();
+        System.out.println(appointmentController.cancelAppointment(id));
+    }
+
+    private void addDoctorFlow() {
+        System.out.println("----- Add Doctor -----");
+        // Enter doctor details
+        System.out.print("Enter doctor's first name: ");
+        String firstName = scanner.nextLine();
+
+        System.out.print("Enter doctor's last name: ");
+        String lastName = scanner.nextLine();
+
+        System.out.print("Enter doctor's specialization: ");
+        String specialization = scanner.nextLine();
+
+        System.out.print("Enter doctor's email: ");
+        String email = scanner.nextLine();
+
+        System.out.print("Enter doctor's phone number: ");
+        String phone = scanner.nextLine();
+
+        System.out.print("Is the doctor active? (true for active, false for inactive): ");
+        boolean isActive = readBoolean();
+
+        String username = firstName.toLowerCase() + lastName.toLowerCase() + "@hospital.com";  // Basic username generation
+
+        boolean success = doctorController.addDoctor(firstName, lastName, specialization, email, phone, isActive, username);
+        if (success) {
+            System.out.println("Doctor added successfully.");
         } else {
-            System.out.println("Doctors with specialization " + specialization + ":");
-            for (Doctor doctor : doctors) {
-                System.out.println("Doctor ID: " + doctor.getId() + " | Name: " + doctor.getFirstName() + " " + doctor.getLastName());
-            }
-
-            System.out.print("Enter Doctor ID: ");
-            int doctorId = scanner.nextInt();
-            scanner.nextLine();
-
-
-            doctorAvailabilityController.viewAvailableSlots(doctorId);
-
-            System.out.print("Enter your preferred slot time: (Ex: 2023-11-05 13:00");
-            String slotTime = scanner.nextLine();
-
-
-            String result = appointmentController.createAppointment(loggedInUser.getId(), doctorId, 1, 1, slotTime, 30); // Replace 1 with actual IDs if needed
-            System.out.println(result);
+            System.out.println("Failed to add doctor.");
         }
     }
 
-    private void cancelAppointment() {
-        System.out.println("----- Cancel Appointment -----");
-
-        appointmentController.viewAppointmentsByUser(loggedInUser.getId());
-
-        System.out.print("Enter the ID of the appointment to cancel: ");
-        int appointmentId = scanner.nextInt();
-        String result = appointmentController.cancelAppointment(appointmentId);
-        System.out.println(result);
+    private void deleteDoctorFlow() {
+        System.out.print("Enter Doctor ID to delete: ");
+        int doctorId = readInt();
+        boolean success = doctorController.deleteDoctor(doctorId);
+        if (success) {
+            System.out.println("Doctor deleted successfully.");
+        } else {
+            System.out.println("Failed to delete doctor.");
+        }
     }
 
-    private void viewAppointments() {
-        System.out.println("----- View Appointments -----");
-        appointmentController.viewAppointmentsByUser(loggedInUser.getId());
+
+    private int readInt() {
+        while (true) {
+            try {
+                String s = scanner.nextLine();
+                return Integer.parseInt(s.trim());
+            } catch (Exception e) {
+                System.out.print("Enter a number: ");
+            }
+        }
+    }
+    private void addAvailabilityFlow() {
+        System.out.println("----- Add Availability -----");
+
+
+        if (loggedInUser.getRole() != Role.DOCTOR) {
+            System.out.println("You are not a doctor and cannot add availability.");
+            return;
+        }
+
+
+        if (loggedInUser.getDoctorId() == null) {
+            System.out.println("Doctor ID is not linked to your account.");
+            return;
+        }
+
+
+        System.out.print("Enter the day of the week (e.g., Monday): ");
+        String dayOfWeek = scanner.nextLine();
+
+        System.out.print("Enter start time (HH:mm): ");
+        String startTime = scanner.nextLine();
+
+        System.out.print("Enter end time (HH:mm): ");
+        String endTime = scanner.nextLine();
+
+        // Call the controller to add availability for the logged-in doctor
+        boolean success = doctorController.addAvailability(loggedInUser.getDoctorId(), dayOfWeek, startTime, endTime);
+
+        if (success) {
+            System.out.println("Availability added successfully.");
+        } else {
+            System.out.println("Failed to add availability.");
+        }
+    }
+
+    private boolean readBoolean() {
+        while (true) {
+            String s = scanner.nextLine().trim().toLowerCase();
+            if (s.equals("true")) return true;
+            if (s.equals("false")) return false;
+            System.out.print("Type true or false: ");
+        }
     }
 }

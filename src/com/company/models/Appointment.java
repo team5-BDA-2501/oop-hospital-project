@@ -3,7 +3,6 @@ package com.company.models;
 import java.time.LocalDateTime;
 
 public class Appointment {
-    private int id;
     private int userId;
     private int doctorId;
     private int availabilityId;
@@ -12,10 +11,8 @@ public class Appointment {
     private int durationMinutes;
     private String status;
 
-
-    public Appointment(int id, int userId, int doctorId, int availabilityId, int timeId,
-                       LocalDateTime appointmentDatetime, int durationMinutes, String status) {
-        this.id = id;
+    // Constructor
+    public Appointment(int userId, int doctorId, int availabilityId, int timeId, LocalDateTime appointmentDatetime, int durationMinutes, String status) {
         this.userId = userId;
         this.doctorId = doctorId;
         this.availabilityId = availabilityId;
@@ -25,17 +22,7 @@ public class Appointment {
         this.status = status;
     }
 
-
-    public Appointment(int userId, int doctorId, int availabilityId, int timeId,
-                       LocalDateTime appointmentDatetime, int durationMinutes, String status) {
-        this(0, userId, doctorId, availabilityId, timeId, appointmentDatetime, durationMinutes, status);
-    }
-
-
-    public int getId() {
-        return id;
-    }
-
+    // Getters (add methods like these)
     public int getUserId() {
         return userId;
     }
@@ -62,20 +49,5 @@ public class Appointment {
 
     public String getStatus() {
         return status;
-    }
-
-
-    @Override
-    public String toString() {
-        return "Appointment{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", doctorId=" + doctorId +
-                ", availabilityId=" + availabilityId +
-                ", timeId=" + timeId +
-                ", appointmentDatetime=" + appointmentDatetime +
-                ", durationMinutes=" + durationMinutes +
-                ", status='" + status + '\'' +
-                '}';
     }
 }
