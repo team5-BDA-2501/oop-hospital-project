@@ -60,7 +60,7 @@ public class DoctorRepository implements IDoctorRepository {
         return doctors;
     }
 
-    // Add a doctor to the database
+
     @Override
     public boolean addDoctor(Doctor doctor) {
         String sql = "INSERT INTO doctors (first_name, last_name, specialization, email, phone, is_active, username) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -79,7 +79,7 @@ public class DoctorRepository implements IDoctorRepository {
         return false;
     }
 
-    // Delete a doctor from the database
+
     @Override
     public boolean deleteDoctor(int doctorId) {
         String sql = "DELETE FROM doctors WHERE id = ?";

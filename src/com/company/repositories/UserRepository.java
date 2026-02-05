@@ -27,11 +27,11 @@ public class UserRepository implements IUserRepository {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
 
-                    // ✅ Convert String role -> Role enum safely
+
                     String roleStr = rs.getString("role");
                     Role role = (roleStr == null) ? Role.USER : Role.valueOf(roleStr);
 
-                    // ✅ users table DOES NOT have doctor_id, so pass null
+
                     return new User(
                             rs.getInt("id"),
                             rs.getString("name"),
@@ -47,7 +47,7 @@ public class UserRepository implements IUserRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
-            // if role in DB is wrong like "user" instead of "USER"
+
             System.out.println("Invalid role value in DB. Please use USER/ADMIN/DOCTOR exactly.");
         }
 
@@ -56,8 +56,7 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public boolean createUser(User user) {
-        // ✅ If you have role column, insert it too.
-        // If role column exists and is NOT NULL, you MUST insert it.
+
         String query = "INSERT INTO users (name, surname, username, password, gender, role) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -85,7 +84,7 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public List<User> getAllUsers() {
-        // ✅ REMOVE doctor_id because it does not exist in users table
+
         String sql = "SELECT id, name, surname, username, password, gender, role FROM users";
         List<User> users = new ArrayList<>();
 
@@ -96,7 +95,7 @@ public class UserRepository implements IUserRepository {
                 String roleStr = rs.getString("role");
                 Role role = (roleStr == null) ? Role.USER : Role.valueOf(roleStr);
 
-                // ✅ no doctor_id column -> pass null
+
                 users.add(new User(
                         rs.getInt("id"),
                         rs.getString("name"),

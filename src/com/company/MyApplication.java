@@ -135,7 +135,7 @@ public class MyApplication {
         }
     }
 
-    // DOCTOR MENU
+
     private void doctorMenu() {
         while (true) {
             System.out.println("\n========== DOCTOR MENU ==========");
@@ -255,10 +255,10 @@ public class MyApplication {
         }
 
 
-        if (loggedInUser.getDoctorId() == null) {
-            System.out.println("Doctor ID is not linked to your account.");
-            return;
-        }
+        // if (loggedInUser.getDoctorId() == null) {
+           // System.out.println("Doctor ID is not linked to your account.");
+           // return;
+        //}
 
 
         System.out.print("Enter the day of the week (e.g., Monday): ");
@@ -270,7 +270,7 @@ public class MyApplication {
         System.out.print("Enter end time (HH:mm): ");
         String endTime = scanner.nextLine();
 
-        // Call the controller to add availability for the logged-in doctor
+
         boolean success = doctorController.addAvailability(loggedInUser.getDoctorId(), dayOfWeek, startTime, endTime);
 
         if (success) {
