@@ -5,6 +5,7 @@ import com.company.models.Role;
 import com.company.models.User;
 import com.company.utils.InputValidator;
 import com.company.models.Doctor;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,7 +18,13 @@ public class MyApplication {
     private final AdminController adminController;
 
     private User loggedInUser = null;
-    public MyApplication(UserController userController, AppointmentController appointmentController, DoctorController doctorController, AdminController adminController) {
+
+    private Integer loggedInDoctorTableId = null;
+
+    public MyApplication(UserController userController,
+                         AppointmentController appointmentController,
+                         DoctorController doctorController,
+                         AdminController adminController) {
         this.userController = userController;
         this.appointmentController = appointmentController;
         this.doctorController = doctorController;
@@ -36,7 +43,10 @@ public class MyApplication {
             switch (choice) {
                 case 1 -> login();
                 case 2 -> registerUser();
-                case 0 -> { System.out.println("Goodbye!"); return; }
+                case 0 -> {
+                    System.out.println("Goodbye!");
+                    return;
+                }
                 default -> System.out.println("Invalid choice.");
             }
         }
@@ -56,11 +66,19 @@ public class MyApplication {
             return;
         }
 
+        loggedInDoctorTableId = null;
+
         System.out.println("Login successful! Welcome " + loggedInUser.getName() + " (" + loggedInUser.getRole() + ")");
 
-        if (loggedInUser.getRole() == Role.ADMIN) adminMenu();
-        else if (loggedInUser.getRole() == Role.DOCTOR) doctorMenu();
-        else userMenu();
+        if (loggedInUser.getRole() == Role.ADMIN) {
+            adminMenu();
+        } else if (loggedInUser.getRole() == Role.DOCTOR) {
+            System.out.print("Enter your Doctor ID (from doctors table): ");
+            loggedInDoctorTableId = readInt();
+            doctorMenu();
+        } else {
+            userMenu();
+        }
     }
 
     private void registerUser() {
@@ -91,7 +109,6 @@ public class MyApplication {
         System.out.println(success ? "Registration successful! Please log in." : "Registration failed.");
     }
 
-
     private void userMenu() {
         while (true) {
             System.out.println("\n========== USER MENU ==========");
@@ -106,12 +123,16 @@ public class MyApplication {
                 case 1 -> createAppointmentFlow();
                 case 2 -> cancelAppointmentFlow();
                 case 3 -> appointmentController.viewAppointmentsByUser(loggedInUser.getId());
-                case 4 -> { loggedInUser = null; System.out.println("Logged out."); return; }
+                case 4 -> {
+                    loggedInUser = null;
+                    loggedInDoctorTableId = null;
+                    System.out.println("Logged out.");
+                    return;
+                }
                 default -> System.out.println("Invalid.");
             }
         }
     }
-
 
     private void adminMenu() {
         while (true) {
@@ -129,12 +150,16 @@ public class MyApplication {
                 case 2 -> adminController.viewAllAppointmentsJoined();
                 case 3 -> addDoctorFlow();
                 case 4 -> deleteDoctorFlow();
-                case 5 -> { loggedInUser = null; System.out.println("Logged out."); return; }
+                case 5 -> {
+                    loggedInUser = null;
+                    loggedInDoctorTableId = null;
+                    System.out.println("Logged out.");
+                    return;
+                }
                 default -> System.out.println("Invalid.");
             }
         }
     }
-
 
     private void doctorMenu() {
         while (true) {
@@ -148,10 +173,21 @@ public class MyApplication {
             int c = readInt();
             switch (c) {
                 case 1 -> addAvailabilityFlow();
-                case 2 -> appointmentController.getAppointmentsByDoctor(loggedInUser.getId())
-                        .forEach(System.out::println);
+                case 2 -> {
+                    if (loggedInDoctorTableId == null) {
+                        System.out.println("Doctor ID is not set. Please re-login.");
+                    } else {
+                        appointmentController.getAppointmentsByDoctor(loggedInDoctorTableId)
+                                .forEach(System.out::println);
+                    }
+                }
                 case 3 -> cancelAppointmentFlow();
-                case 4 -> { loggedInUser = null; System.out.println("Logged out."); return; }
+                case 4 -> {
+                    loggedInUser = null;
+                    loggedInDoctorTableId = null;
+                    System.out.println("Logged out.");
+                    return;
+                }
                 default -> System.out.println("Invalid.");
             }
         }
@@ -174,7 +210,7 @@ public class MyApplication {
         System.out.print("Enter Doctor ID: ");
         int doctorId = readInt();
 
-        System.out.print("Enter appointment datetime: ");
+        System.out.print("Enter appointment datetime (yyyy-MM-dd HH:mm): ");
         String dt = scanner.nextLine();
 
         int availabilityId = 1;
@@ -194,7 +230,6 @@ public class MyApplication {
 
     private void addDoctorFlow() {
         System.out.println("----- Add Doctor -----");
-        // Enter doctor details
         System.out.print("Enter doctor's first name: ");
         String firstName = scanner.nextLine();
 
@@ -210,56 +245,35 @@ public class MyApplication {
         System.out.print("Enter doctor's phone number: ");
         String phone = scanner.nextLine();
 
-        System.out.print("Is the doctor active? (true for active, false for inactive): ");
+        System.out.print("Is the doctor active? (true/false): ");
         boolean isActive = readBoolean();
 
-        String username = firstName.toLowerCase() + lastName.toLowerCase() + "@hospital.com";  // Basic username generation
+        String username = firstName.toLowerCase() + lastName.toLowerCase() + "@hospital.com";
 
         boolean success = doctorController.addDoctor(firstName, lastName, specialization, email, phone, isActive, username);
-        if (success) {
-            System.out.println("Doctor added successfully.");
-        } else {
-            System.out.println("Failed to add doctor.");
-        }
+        System.out.println(success ? "Doctor added successfully." : "Failed to add doctor.");
+        System.out.println("Now find the new doctor's ID in DB: SELECT id FROM doctors WHERE email = '" + email + "';");
     }
 
     private void deleteDoctorFlow() {
         System.out.print("Enter Doctor ID to delete: ");
         int doctorId = readInt();
         boolean success = doctorController.deleteDoctor(doctorId);
-        if (success) {
-            System.out.println("Doctor deleted successfully.");
-        } else {
-            System.out.println("Failed to delete doctor.");
-        }
+        System.out.println(success ? "Doctor deleted successfully." : "Failed to delete doctor.");
     }
 
-
-    private int readInt() {
-        while (true) {
-            try {
-                String s = scanner.nextLine();
-                return Integer.parseInt(s.trim());
-            } catch (Exception e) {
-                System.out.print("Enter a number: ");
-            }
-        }
-    }
     private void addAvailabilityFlow() {
         System.out.println("----- Add Availability -----");
-
 
         if (loggedInUser.getRole() != Role.DOCTOR) {
             System.out.println("You are not a doctor and cannot add availability.");
             return;
         }
 
-
-        // if (loggedInUser.getDoctorId() == null) {
-           // System.out.println("Doctor ID is not linked to your account.");
-           // return;
-        //}
-
+        if (loggedInDoctorTableId == null) {
+            System.out.println("Doctor ID is not set. Please re-login.");
+            return;
+        }
 
         System.out.print("Enter the day of the week (e.g., Monday): ");
         String dayOfWeek = scanner.nextLine();
@@ -270,13 +284,18 @@ public class MyApplication {
         System.out.print("Enter end time (HH:mm): ");
         String endTime = scanner.nextLine();
 
+        boolean success = doctorController.addAvailability(loggedInDoctorTableId, dayOfWeek, startTime, endTime);
+        System.out.println(success ? "Availability added successfully." : "Failed to add availability.");
+    }
 
-        boolean success = doctorController.addAvailability(loggedInUser.getDoctorId(), dayOfWeek, startTime, endTime);
-
-        if (success) {
-            System.out.println("Availability added successfully.");
-        } else {
-            System.out.println("Failed to add availability.");
+    private int readInt() {
+        while (true) {
+            try {
+                String s = scanner.nextLine();
+                return Integer.parseInt(s.trim());
+            } catch (Exception e) {
+                System.out.print("Enter a number: ");
+            }
         }
     }
 

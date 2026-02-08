@@ -28,7 +28,7 @@ public class AppointmentController {
         return appointmentRepo.getAppointmentsByUser(userId);
     }
 
-    public List<AppointmentDetails> getAppointmentsByDoctor(int doctorId) {
+    public List<Appointment> getAppointmentsByDoctor(int doctorId) {
         return appointmentRepo.getAppointmentsByDoctor(doctorId);
     }
 

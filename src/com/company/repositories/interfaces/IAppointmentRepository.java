@@ -7,6 +7,6 @@ public interface IAppointmentRepository {
     boolean createAppointment(Appointment appointment);
     boolean cancelAppointment(int appointmentId);
     List<AppointmentDetails> getAppointmentsByUser(int userId);
-    List<AppointmentDetails> getAppointmentsByDoctor(int doctorId);
+    List<Appointment> getAppointmentsByDoctor(int doctorId);
     List<AppointmentDetails> getAllAppointmentsDetails();
 }

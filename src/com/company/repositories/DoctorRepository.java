@@ -96,14 +96,21 @@ public class DoctorRepository implements IDoctorRepository {
     @Override
     public boolean addAvailability(int doctorId, String dayOfWeek, String startTime, String endTime) {
         String sql = "INSERT INTO doctor_availability (doctor_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            java.time.LocalTime start = java.time.LocalTime.parse(startTime); // accepts HH:mm
+            java.time.LocalTime end = java.time.LocalTime.parse(endTime);     // accepts HH:mm
+
             stmt.setInt(1, doctorId);
             stmt.setString(2, dayOfWeek);
-            stmt.setString(3, startTime);
-            stmt.setString(4, endTime);
+            stmt.setTime(3, java.sql.Time.valueOf(start)); // convert correctly
+            stmt.setTime(4, java.sql.Time.valueOf(end));
+
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Invalid time format. Use HH:mm (example: 13:00).");
         }
         return false;
     }

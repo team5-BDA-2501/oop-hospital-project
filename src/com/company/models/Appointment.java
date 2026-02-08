@@ -50,4 +50,16 @@ public class Appointment {
     public String getStatus() {
         return status;
     }
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "userId=" + userId +
+                ", doctorId=" + doctorId +
+                ", availabilityId=" + availabilityId +
+                ", timeId=" + timeId +
+                ", appointmentDatetime=" + appointmentDatetime +
+                ", durationMinutes=" + durationMinutes +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

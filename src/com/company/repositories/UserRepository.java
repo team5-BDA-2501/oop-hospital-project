@@ -67,7 +67,7 @@ public class UserRepository implements IUserRepository {
             ps.setString(4, user.getPassword());
             ps.setBoolean(5, user.getGender());
 
-            // ✅ role is enum -> store as text
+
             Role role = user.getRole() == null ? Role.USER : user.getRole();
             ps.setString(6, role.name());
 

@@ -70,25 +70,31 @@ public class AppointmentRepository implements IAppointmentRepository {
 
 
     @Override
-    public List<AppointmentDetails> getAppointmentsByDoctor(int doctorId) {
-        String sql = "SELECT * FROM appointments WHERE doctor_id = ?";
-        List<AppointmentDetails> appointments = new ArrayList<>();
+    public List<Appointment> getAppointmentsByDoctor(int doctorId) {
+        String sql = "SELECT user_id, doctor_id, availability_id, time_id, appointment_datetime, duration_minutes, status " +
+                "FROM appointments WHERE doctor_id = ? ORDER BY appointment_datetime";
+
+        List<Appointment> appointments = new ArrayList<>();
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, doctorId);
             ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
-                appointments.add(new AppointmentDetails(
-                        rs.getInt("id"),
-                        rs.getString("user_name"),
-                        rs.getString("doctor_name"),
-                        rs.getString("doctor_specialization"),
+                appointments.add(new Appointment(
+                        rs.getInt("user_id"),
+                        rs.getInt("doctor_id"),
+                        rs.getInt("availability_id"),
+                        rs.getInt("time_id"),
                         rs.getTimestamp("appointment_datetime").toLocalDateTime(),
+                        rs.getInt("duration_minutes"),
                         rs.getString("status")
                 ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return appointments;
     }
 
