@@ -29,7 +29,7 @@ public class DimTimeRepository implements IDimTimeRepository {
                 }
             }
 
-            String day = capitalize(date.getDayOfWeek().name().toLowerCase()); // Monday
+            String day = capitalize(date.getDayOfWeek().name().toLowerCase());
             int week = date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
             int month = date.getMonthValue();
             int quarter = (month - 1) / 3 + 1;

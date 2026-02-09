@@ -100,28 +100,44 @@ public class AppointmentRepository implements IAppointmentRepository {
 
     @Override
     public List<AppointmentDetails> getAllAppointmentsDetails() {
-        String sql = "SELECT appointments.id, users.name as user_name, doctors.first_name as doctor_name, " +
-                "appointments.appointment_datetime, appointments.duration_minutes, appointments.status " +
-                "FROM appointments " +
-                "JOIN users ON appointments.user_id = users.id " +
-                "JOIN doctors ON appointments.doctor_id = doctors.id";
+        String sql =
+                "SELECT a.id AS appointment_id, " +
+                        "       u.name AS user_name, u.surname AS user_surname, " +
+                        "       d.first_name AS doctor_first_name, d.last_name AS doctor_last_name, " +
+                        "       d.specialization AS doctor_specialization, " +
+                        "       a.appointment_datetime AS appointment_datetime, " +
+                        "       a.status AS status " +
+                        "FROM appointments a " +
+                        "JOIN users u ON a.user_id = u.id " +
+                        "JOIN doctors d ON a.doctor_id = d.id " +
+                        "ORDER BY a.appointment_datetime";
 
-        List<AppointmentDetails> appointments = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        List<AppointmentDetails> list = new ArrayList<>();
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
             while (rs.next()) {
-                appointments.add(new AppointmentDetails(
-                        rs.getInt("id"),
-                        rs.getString("user_name"),
-                        rs.getString("doctor_name"),
-                        rs.getString("doctor_specialization"),
+                int appointmentId = rs.getInt("appointment_id");
+
+                String userFullName = rs.getString("user_name") + " " + rs.getString("user_surname");
+                String doctorFullName = rs.getString("doctor_first_name") + " " + rs.getString("doctor_last_name");
+                String doctorSpec = rs.getString("doctor_specialization");
+
+                list.add(new AppointmentDetails(
+                        appointmentId,
+                        userFullName,
+                        doctorFullName,
+                        doctorSpec,
                         rs.getTimestamp("appointment_datetime").toLocalDateTime(),
                         rs.getString("status")
                 ));
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return appointments;
+
+        return list;
     }
 }

@@ -29,10 +29,10 @@ public class DoctorAvailabilityRepository implements IDoctorAvailabilityReposito
             while (rs.next()) {
 
                 DoctorAvailability availability = new DoctorAvailability(
-                        rs.getInt("doctor_id"),  // Doctor ID
-                        rs.getString("day_of_week"),  // Day of the week
-                        rs.getTime("start_time").toLocalTime(),  // Start time
-                        rs.getTime("end_time").toLocalTime()  // End time
+                        rs.getInt("doctor_id"),
+                        rs.getString("day_of_week"),
+                        rs.getTime("start_time").toLocalTime(),
+                        rs.getTime("end_time").toLocalTime()
                 );
 
                 availabilityList.add(availability);

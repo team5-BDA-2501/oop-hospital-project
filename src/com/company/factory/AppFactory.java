@@ -42,7 +42,8 @@ public class AppFactory {
         DoctorAvailabilityController availabilityController = new DoctorAvailabilityController(availabilityRepo);
 
 
-        AdminController adminController = new AdminController(doctorRepo, userRepo);
+        AdminController adminController =
+                new AdminController(doctorRepo, userRepo, appointmentRepo);
 
 
         return new Bundle(userController, appointmentController, doctorController, availabilityController, adminController);

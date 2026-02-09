@@ -44,7 +44,7 @@ public class AppointmentController {
         if (appointments.isEmpty()) {
             System.out.println("No appointments found.");
         } else {
-            appointments.forEach(System.out::println);  // Printing all appointments for user
+            appointments.forEach(System.out::println);
         }
     }
 }

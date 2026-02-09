@@ -2,7 +2,7 @@ package com.company.controllers;
 
 import com.company.models.Doctor;
 import com.company.repositories.interfaces.IDoctorRepository;
-import java.util.List;  // Make sure you import this
+import java.util.List;
 
 public class DoctorController {
     private final IDoctorRepository doctorRepository;
@@ -27,11 +27,11 @@ public class DoctorController {
 
 
     public boolean deleteDoctor(int doctorId) {
-        return doctorRepository.deleteDoctor(doctorId);  // Ensure this method is correctly implemented in DoctorRepository
+        return doctorRepository.deleteDoctor(doctorId);
     }
 
 
     public boolean addAvailability(int doctorId, String dayOfWeek, String startTime, String endTime) {
-        return doctorRepository.addAvailability(doctorId, dayOfWeek, startTime, endTime);  // Make sure this is implemented in the repository
+        return doctorRepository.addAvailability(doctorId, dayOfWeek, startTime, endTime);
     }
 }
